@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="zhengkui" content="">
+    <title>test change_background</title>
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        ul, li {
+            list-style: none;
+        }
+
+        body {
+            font-family: "微软雅黑";
+            font-size: 14px;
+            background: url("img/bxjg1.jpg");
+        }
+
+        .menu {
+            width: 200px;
+            height: 250px;
+            box-shadow: 0 0 10px #fff;
+            background: #fff;
+            display: none;
+            position: absolute;
+            top: 100px;
+            left: 100px;
+        }
+
+        .menu ul li {
+            width: 200px;
+            height: 35px;
+            border-bottom: 1px solid #888;
+            text-indent: 5em;
+            line-height: 35px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .menu ul li.active {
+            background: royalblue;
+            color: #fff;
+        }
+
+        .bg {
+            width: 730px;
+            height: 360px;
+            background: #999;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            display: none;
+        }
+
+        .bg .title {
+            width: 730px;
+            height: 45px;
+            background: #555;
+            color: #fff;
+            line-height: 45px;
+            text-align: center;
+        }
+
+        .bg .title .close {
+            position: absolute;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .bg .list li {
+            float: left;
+            width: 200px;
+            height: 125px;
+            border: 5px solid #fff;
+            margin: 15px 0 0 25px;
+            cursor: pointer;
+        }
+
+        .bg .list li img {
+            width: 200px;
+            height: 125px;
+        }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <ul class="list">
+        <li class="active">
+            <span>添加应用</span>
+        </li>
+        <li>
+            <span>获取课程</span>
+        </li>
+        <li>
+            <span>添加笔记</span>
+        </li>
+        <li>
+            <span>刷新</span>
+        </li>
+        <li>
+            <span>上传资料</span>
+        </li>
+        <li>
+            <span>更换背景</span>
+        </li>
+        <li>
+            <span>注销</span>
+        </li>
+    </ul>
+</div>
+<div class="bg">
+    <div class="title">
+        <span>桌面背景墙</span>
+        <span class="close">关闭</span>
+    </div>
+    <ul class="list">
+        <li><img src="img/bxjg1.jpg"></li>
+        <li><img src="img/bxjg2.jpg"></li>
+        <li><img src="img/bxjg3.jpg"></li>
+        <li><img src="img/bxjg4.jpg"></li>
+        <li><img src="img/bxjg5.jpg"></li>
+        <li><img src="img/bxjg6.jpg"></li>
+    </ul>
+</div>
+<script type="text/javascript" src="js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        /*
+         * 桌面换肤思路
+         * 1.有一个自定义的右键菜单
+         * 2.屏蔽浏览器的默认右键菜单 oncontextmenu
+         * 3.需要一个桌面北京墙 拖拽效果
+         * 4.改变背景
+         * */
+        var $menu = $(".menu");
+        var $menuUlLi = $(".menu ul li");
+        var $bg = $(".bg");
+        //屏蔽默认的右键菜单
+        document.oncontextmenu = function () {
+            return false;
+        };
+        //点击鼠标右键显示自定义菜单
+        $(document).mousedown(function (e) {
+            var key = e.which;                                              //右键3
+            //运行判断
+            //根据鼠标的坐标显示在响应的位置
+            var x = e.clientX;
+            var y = e.clientY;
+            if (key == 3) {
+                $menu.show(400).css({left: x, top: y});
+            }
+        });
+        //点击其他位置菜单消失
+        $(document).click(function () {
+            $menu.hide(400);
+        });
+        //鼠标移动改变背景色
+        $menuUlLi.mouseover(function () {
+            $(this).addClass("active").siblings().removeClass("active");
+        });
+
+        //改变背景
+        $menuUlLi.click(function () {
+            //判断索引
+            if ($(this).index() == 5) {
+                $bg.show(400);
+            }
+        });
+        //关闭背景
+        $('.bg .close').click(function () {
+            $bg.hide(400);
+        });
+        //改变背景
+        $(".bg .list li").click(function () {
+            //img src 属性
+            var img = $(this).find("img").attr("src");
+            $("body").css({"background": "url(" + img + ")"});
+        });
+
+        //拖拽
+        //分三个步骤
+        //鼠标按下 鼠标移动 鼠标抬起
+        $(".title").mousedown(function (e) {
+            var disX = e.clientX - $bg.position().left;
+            var disY = e.clientY - $bg.position().top;
+            $(document).mousemove(function (e) {
+                var x = e.clientX - disX;
+                var y = e.clientY - disY;
+                var maxW = $(window).width() - $bg.width();
+                var maxH = $(window).height() - $bg.height();
+                if (x >= maxW) {
+                    x = maxW;
+                }
+                if (y >= maxH) {
+                    y = maxH;
+                }
+                if (x <= 0) {
+                    x = 0;
+                }
+                if (y <= 0) {
+                    y = 0;
+                }
+                $bg.css({top: y, left: x});
+            });
+            $(document).mouseup(function () {
+                $(document).off("mousemove");
+                $(document).off("mouseup");
+            });
+        });
+    })
+</script>
+</body>
+</html>
